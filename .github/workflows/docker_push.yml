@@ -10,13 +10,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Build Docker image
-      run: docker build -t spc:latest .
+      run: docker build -t iqpr-spc:latest .
     - name: Login to DockerHub
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Tag image
-      run: docker tag spc:latest ${{ secrets.DOCKERHUB_USERNAME }}/spc:latest
+      run: docker tag iqpr-spc:latest ${{ secrets.DOCKERHUB_USERNAME }}/iqpr-spc:latest
     - name: Push Docker image
-      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/spc:latest
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/iqpr-spc:latest

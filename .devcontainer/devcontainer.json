@@ -1,0 +1,19 @@
+{
+    "name": "R Dev Container",
+    "dockerFile": "Dockerfile",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            },
+            "extensions": [
+                "rpk.vscode-r",
+                "rebornix.r",
+                "ms-vscode-remote.remote-containers"
+            ]
+        }
+    },
+    "runArgs": [
+        "--user=root"
+    ]
+}

@@ -26,6 +26,11 @@ connection_string <- toString(kv_client$secrets$get("public-dataflow-connections
 
 con <- dbConnect(odbc::odbc(), .connection_string = connection_string)
 
+print("Running pre-spc update query")
+update_query1="UPDATE scd.measure set IncludePrint 'N' WHERE AlertSet = 1"
+update <- dbExecute(con, update_query1)
+print("Finished running pre-spc update query")
+
 sql <- "SELECT * FROM [scd].[vw_SPCSourceData]"
 df <- dbGetQuery(con, sql) %>%
   mutate(Period = as.Date(Period, format = "%Y-%m-%d"))
@@ -98,3 +103,13 @@ spc <- bind_rows(spc_list, .id = "Measure_id") %>% as.data.frame()
 spc <- spc %>% mutate(RunDate = as.POSIXct(Sys.time()))
 spc <- spc %>% mutate_all(~ as.character(.))
 odbc::dbWriteTable(con, Id(schema = "scd", table = "SPCMeasures"), spc, append = FALSE, overwrite = TRUE) # nolint
+
+
+print("Running post-spc update query")
+update_query2 ="update m set AlertSet = 1, IncludePrint = 'Y'
+from scd.Measure m inner join scd.MetricYTD y on y.Measure_id = m.measure_id
+where (variation_type like '%high' or variation_type like '%low' )
+and m.Measure_id not in (select Comparative_Measure_ID from scd.Measure  where Comparative_Measure_ID is not null )
+and m.Includeprint = 'N' and m.Exclude = 'N' and LatestMonth  = 1"
+update <- dbExecute(con, update_query1)
+print("Finished running post-spc update query")

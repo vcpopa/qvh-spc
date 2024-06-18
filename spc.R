@@ -48,17 +48,18 @@ df <- dbGetQuery(con, sql) %>%
 
 variation_icon_file <- function(point_type, improvement_direction) {
   icon <- case_when(
-    point_type == "common_cause" ~ "common_cause",
+    is.null(point_type) | point_type == "common_cause" ~ "common_cause",
     point_type == "special_cause_neutral_high" ~ "neutral_high",
     point_type == "special_cause_neutral_low" ~ "neutral_low",
-    point_type == "special_cause_concern" ~ paste0(
+    point_type == "special_cause_concern" & !is.null(improvement_direction) ~ paste0(
       "concern_",
       if (improvement_direction == "increase") "low" else "high"
     ),
-    point_type == "special_cause_improvement" ~ paste0(
+    point_type == "special_cause_improvement" & !is.null(improvement_direction) ~ paste0(
       "improvement_",
       if (improvement_direction == "increase") "high" else "low"
-    )
+    ),
+    TRUE ~ NA_character_
   )
   return(icon)
 }

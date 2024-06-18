@@ -89,15 +89,16 @@ for (measure_id in unique_measure_ids) {
     pull(point_type) %>%
     .[1]
   # Calculate assurance_type
-  if (is.na(target)) {
-    assurance_type<-NULL
-  } else {
+  # THIS IS A WORKAROUND AND NEEDS LOOKING AT ASAP
+if (is.null(target)) {
+    assurance_type <- NULL
+} else {
     assurance <- spc_result %>% summary()
     assurance_type <- assurance %>%
-      filter(!is.na(assurance_type)) %>%
-      pull(assurance_type) %>%
-      .[1]
-  }
+        filter(!is.na(assurance_type)) %>%
+        pull(assurance_type) %>%
+        .[1]
+}
   # Assign assurance_type to spc_result
   spc_result <- spc_result %>%
     as.data.frame() %>%

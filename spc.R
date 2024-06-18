@@ -31,7 +31,7 @@ sql <- "SELECT
     measureinput,
     measureformat,
     CASE
-        WHEN m1.MeasureFormat <> 'Number' AND measureformat <> 'Rate' THEN
+        WHEN m1.MeasureFormat <> 'Number' AND measureformat <> 'Rate' AND denominator <> 1 THEN
             (CAST(numerator AS FLOAT) / denominator) * 100
         WHEN m1.MeasureFormat <> 'Number' AND measureformat = 'Rate' AND denominator IS NOT NULL THEN
             CAST(numerator AS FLOAT) / denominator

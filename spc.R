@@ -33,14 +33,16 @@ sql <- "SELECT
     CASE
         WHEN m1.MeasureFormat <> 'Number' AND measureformat <> 'Rate' THEN
             (CAST(numerator AS FLOAT) / denominator) * 100
-        WHEN m1.MeasureFormat <> 'Number' AND measureformat = 'Rate' THEN
+        WHEN m1.MeasureFormat <> 'Number' AND measureformat = 'Rate' AND denominator IS NOT NULL THEN
             CAST(numerator AS FLOAT) / denominator
         ELSE
             Numerator
     END AS value
 FROM
     scd.Metric m
-    INNER JOIN scd.Measure m1 ON m1.Measure_ID = m.Measure_ID;"
+INNER JOIN
+    scd.Measure m1 ON m1.Measure_ID = m.Measure_ID;
+"
 df <- dbGetQuery(con, sql) %>%
   mutate(Period = as.Date(Period, format = "%Y-%m-%d"))
 

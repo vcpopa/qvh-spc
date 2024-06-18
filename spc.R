@@ -87,7 +87,7 @@ for (measure_id in unique_measure_ids) {
     as.data.frame() %>%
     mutate(, Measure_ID = measure_id, assurance_type = assurance_type) %>%
     mutate(variation_type = variation_icon_file(latest_point_type, improvement)) %>% # nolint
-    select(Measure_id,x,y,mean,lpl,upl,point_type,target,assurance_type,variation_type) # nolint
+    select(Measure_ID,x,y,mean,lpl,upl,point_type,target,assurance_type,variation_type) # nolint
 
   # Store the result in the list
   spc_list[[measure_id]] <- spc_result

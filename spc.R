@@ -47,7 +47,7 @@ variation_icon_file <- function(point_type, improvement_direction) {
   return(icon)
 }
 
-unique_measure_ids <- unique(df$Measure_id)
+unique_measure_ids <- unique(df$Measure_ID)
 
 # Initialize an empty list to store results
 spc_list <- list()
@@ -55,7 +55,7 @@ spc_list <- list()
 # Loop through each unique Measure_id
 for (measure_id in unique_measure_ids) {
   # Subset dataframe for the current Measure_id
-  subset_df <- df[df$Measure_id == measure_id, ]
+  subset_df <- df[df$Measure_ID == measure_id, ]
   print(head(subset_df))
   target <- unique(subset_df$Target_Value)[1]
   improvement <- unique(subset_df$improvement)[1]
@@ -85,7 +85,7 @@ for (measure_id in unique_measure_ids) {
   # Assign assurance_type to spc_result
   spc_result <- spc_result %>%
     as.data.frame() %>%
-    mutate(, Measure_id = measure_id, assurance_type = assurance_type) %>%
+    mutate(, Measure_ID = measure_id, assurance_type = assurance_type) %>%
     mutate(variation_type = variation_icon_file(latest_point_type, improvement)) %>% # nolint
     select(Measure_id,x,y,mean,lpl,upl,point_type,target,assurance_type,variation_type) # nolint
 
@@ -94,7 +94,7 @@ for (measure_id in unique_measure_ids) {
 }
 
 # Combine all results into a single dataframe
-spc <- bind_rows(spc_list, .id = "Measure_id") %>% as.data.frame()
+spc <- bind_rows(spc_list, .id = "Measure_ID") %>% as.data.frame()
 spc <- spc %>% mutate(RunDate = as.POSIXct(Sys.time()))
 spc <- spc %>% mutate_all(~ as.character(.))
 odbc::dbWriteTable(con, Id(schema = "scd", table = "SPCMeasures"), spc, append = FALSE, overwrite = TRUE) # nolint

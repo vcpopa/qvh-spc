@@ -78,7 +78,7 @@ for (measure_id in unique_measure_ids) {
 
   # Apply ptd_spc function
   spc_result <- subset_df %>% ptd_spc(
-    value_field = numerator,
+    value_field = value,
     date_field = Period,
     improvement_direction = improvement, # Assuming improvement_direction is constant # nolint
     target = target,

@@ -32,23 +32,22 @@ df <- dbGetQuery(con, sql) %>%
 
 variation_icon_file <- function(point_type, improvement_direction) {
   icon <- case_when(
-    is.null(point_type) | point_type == "common_cause" ~ "common_cause",
+    point_type == "common_cause" ~ "common_cause",
     point_type == "special_cause_neutral_high" ~ "neutral_high",
     point_type == "special_cause_neutral_low" ~ "neutral_low",
-    point_type == "special_cause_concern" & !is.null(improvement_direction) ~ paste0(
+    point_type == "special_cause_concern" ~ paste0(
       "concern_",
       if (improvement_direction == "increase") "low" else "high"
     ),
-    point_type == "special_cause_improvement" & !is.null(improvement_direction) ~ paste0(
+    point_type == "special_cause_improvement" ~ paste0(
       "improvement_",
       if (improvement_direction == "increase") "high" else "low"
-    ),
-    TRUE ~ NA_character_
+    )
   )
   return(icon)
 }
 
-unique_measure_ids <- unique(df$Measure_ID)
+unique_measure_ids <- unique(df$Measure_id)
 
 # Initialize an empty list to store results
 spc_list <- list()
@@ -56,7 +55,7 @@ spc_list <- list()
 # Loop through each unique Measure_id
 for (measure_id in unique_measure_ids) {
   # Subset dataframe for the current Measure_id
-  subset_df <- df[df$Measure_ID == measure_id, ]
+  subset_df <- df[df$Measure_id == measure_id, ]
   print(head(subset_df))
   target <- unique(subset_df$Target_Value)[1]
   improvement <- unique(subset_df$improvement)[1]
@@ -74,29 +73,28 @@ for (measure_id in unique_measure_ids) {
     pull(point_type) %>%
     .[1]
   # Calculate assurance_type
-  # THIS IS A WORKAROUND AND NEEDS LOOKING AT ASAP
-if (is.null(target)) {
-    assurance_type <- NULL
-} else {
+  if (is.na(target)) {
+    assurance_type<-NULL
+  } else {
     assurance <- spc_result %>% summary()
     assurance_type <- assurance %>%
-        filter(!is.na(assurance_type)) %>%
-        pull(assurance_type) %>%
-        .[1]
-}
+      filter(!is.na(assurance_type)) %>%
+      pull(assurance_type) %>%
+      .[1]
+  }
   # Assign assurance_type to spc_result
   spc_result <- spc_result %>%
     as.data.frame() %>%
-    mutate(, Measure_ID = measure_id, assurance_type = assurance_type) %>%
+    mutate(, Measure_id = measure_id, assurance_type = assurance_type) %>%
     mutate(variation_type = variation_icon_file(latest_point_type, improvement)) %>% # nolint
-    select(Measure_ID,x,y,mean,lpl,upl,point_type,target,assurance_type,variation_type) # nolint
+    select(Measure_id,x,y,mean,lpl,upl,point_type,target,assurance_type,variation_type) # nolint
 
   # Store the result in the list
   spc_list[[measure_id]] <- spc_result
 }
 
 # Combine all results into a single dataframe
-spc <- bind_rows(spc_list, .id = "Measure_ID") %>% as.data.frame()
+spc <- bind_rows(spc_list, .id = "Measure_id") %>% as.data.frame()
 spc <- spc %>% mutate(RunDate = as.POSIXct(Sys.time()))
 spc <- spc %>% mutate_all(~ as.character(.))
 odbc::dbWriteTable(con, Id(schema = "scd", table = "SPCMeasures"), spc, append = FALSE, overwrite = TRUE) # nolint

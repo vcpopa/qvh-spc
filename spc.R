@@ -26,23 +26,7 @@ connection_string <- toString(kv_client$secrets$get("public-dataflow-connections
 
 con <- dbConnect(odbc::odbc(), .connection_string = connection_string)
 
-sql <- "SELECT
-    m.*,
-    measureinput,
-    measureformat,
-    CASE
-        WHEN m1.MeasureFormat <> 'Number' AND measureformat <> 'Rate' AND denominator <> 1 THEN
-            (CAST(numerator AS FLOAT) / denominator) * 100
-        WHEN m1.MeasureFormat <> 'Number' AND measureformat = 'Rate' AND denominator IS NOT NULL THEN
-            CAST(numerator AS FLOAT) / denominator
-        ELSE
-            Numerator
-    END AS value
-FROM
-    scd.Metric m
-INNER JOIN
-    scd.Measure m1 ON m1.Measure_ID = m.Measure_ID;
-"
+sql <- "SELECT * FROM scd.vw_SPCSourceData"
 df <- dbGetQuery(con, sql) %>%
   mutate(Period = as.Date(Period, format = "%Y-%m-%d"))
 

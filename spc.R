@@ -97,6 +97,7 @@ for (measure_id in unique_measure_ids) {
   # Store the result in the list
   spc_list[[measure_id]] <- spc_result
 }
+  }
 
 # Combine all results into a single dataframe
 spc <- bind_rows(spc_list) %>% as.data.frame()

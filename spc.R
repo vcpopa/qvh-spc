@@ -92,17 +92,16 @@ for (measure_id in unique_measure_ids) {
       spc_result <- spc_result %>%
         as.data.frame() %>%
         mutate(Measure_ID = measure_id, assurance_type = assurance_type, dim1 = dim_) %>%
-        mutate(variation_type = variation_icon_file(latest_point_type, improvement)) %>%
-        select(Measure_ID, x, y, mean, lpl, upl, point_type, target, assurance_type, variation_type)
+        mutate(variation_type = variation_icon_file(latest_point_type, improvement))
       
       # Store the result in the list
-      spc_list[[paste0(measure_id, "_", dim_)]] <- spc_result
+      spc_list[[length(spc_list) + 1]] <- spc_result
     }
   }
 }
 
 # Combine all results into a single dataframe
-spc <- bind_rows(spc_list) %>% 
+spc <- bind_rows(spc_list) %>%
   mutate(RunDate = as.POSIXct(Sys.time())) %>%
   mutate_all(as.character)
 

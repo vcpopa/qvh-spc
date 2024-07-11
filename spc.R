@@ -57,13 +57,14 @@ spc_list <- list()
 for (measure_id in unique_measure_ids) {
   for (dim_ in unique_dims)
   {
-    
+  print(measure_id, dim_)
   # Subset dataframe for the current Measure_id
-    subset_df <- df[df$Measure_ID == measure_id & df$dim1 == dim_, ]
-    subset_df <- distinct(subset_df)
+  subset_df <- df[df$Measure_ID == measure_id & df$dim1 == dim_, ]
+  subset_df <- distinct(subset_df)
   print(head(subset_df))
   target <- unique(subset_df$Target_Value)[1]
   improvement <- unique(subset_df$improvement)[1]
+  print(improvement)
 
   # Apply ptd_spc function
   spc_result <- subset_df %>% ptd_spc(

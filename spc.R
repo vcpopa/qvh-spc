@@ -57,14 +57,11 @@ spc_list <- list()
 for (measure_id in unique_measure_ids) {
   for (dim_ in unique_dims)
   {
-  print("MEASURE:")
-  print(measure_id)
-  print("DIM:")
-  print(dim_)
   # Subset dataframe for the current Measure_id
   subset_df <- df[df$Measure_ID == measure_id & df$dim1 == dim_, ]
   subset_df <- distinct(subset_df)
   print(head(subset_df))
+    if (nrow(subset_df)>0){
   target <- unique(subset_df$Target_Value)[1]
   improvement <- unique(subset_df$improvement)[1]
   print(improvement)
@@ -101,6 +98,7 @@ for (measure_id in unique_measure_ids) {
   # Store the result in the list
   spc_list[[measure_id]] <- spc_result
 }
+  }
   }
 
 # Combine all results into a single dataframe

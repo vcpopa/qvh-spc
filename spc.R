@@ -55,12 +55,12 @@ spc_list <- list()
 
 # Loop through each unique Measure_id
 for (measure_id in unique_measure_ids) {
-  for (dim in unique_dims)
+  for (dim_ in unique_dims)
   {
     
   # Subset dataframe for the current Measure_id
-  subset_df <- df[df$Measure_ID == measure_id, ]
-    subset_df <- df[df$dim1 == dim, ]
+    subset_df <- df[df$Measure_ID == measure_id & df$dim1 == dim_, ]
+    subset_df <- distinct(subset_df)
   print(head(subset_df))
   target <- unique(subset_df$Target_Value)[1]
   improvement <- unique(subset_df$improvement)[1]
@@ -90,7 +90,7 @@ for (measure_id in unique_measure_ids) {
   # Assign assurance_type to spc_result
   spc_result <- spc_result %>%
     as.data.frame() %>%
-    mutate(, Measure_ID = measure_id, assurance_type = assurance_type,dim1=dim) %>%
+    mutate(, Measure_ID = measure_id, assurance_type = assurance_type,dim1=dim_) %>%
     mutate(variation_type = variation_icon_file(latest_point_type, improvement)) %>% # nolint
     select(Measure_ID,x,y,mean,lpl,upl,point_type,target,assurance_type,variation_type) # nolint
 

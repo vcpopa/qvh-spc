@@ -60,7 +60,7 @@ for (measure_id in unique_measure_ids) {
   print("MEASURE:")
   print(measure_id)
   print("DIM:")
-  print(dim_(
+  print(dim_)
   # Subset dataframe for the current Measure_id
   subset_df <- df[df$Measure_ID == measure_id & df$dim1 == dim_, ]
   subset_df <- distinct(subset_df)

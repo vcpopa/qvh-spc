@@ -47,55 +47,57 @@ variation_icon_file <- function(point_type, improvement_direction) {
 # Get unique measure IDs and dimensions
 unique_measure_ids <- unique(df$Measure_ID)
 unique_dims <- unique(df$dim1)
+unique_dashboards <- unique(df$Dashboard)
 
 # Initialize an empty list to store results
 spc_list <- list()
 
-# Loop through each unique Measure_id and dimension
-for (measure_id in unique_measure_ids) {
-  for (dim_ in unique_dims) {
-    # Subset dataframe for the current Measure_id and dimension
-    subset_df <- df[df$Measure_ID == measure_id & df$dim1 == dim_, ]
-    
-    # Check if subset_df is not empty
-    if (nrow(subset_df) > 0) {
-      target <- unique(subset_df$Target_Value)[1]
-      improvement <- unique(subset_df$improvement)[1]
+for (dashboard in unique_dashboards) {
+  for (measure_id in unique_measure_ids) {
+    for (dim_ in unique_dims) {
+      # Subset dataframe for the current Dashboard, Measure_ID, and dimension
+      subset_df <- df[df$Dashboard == dashboard & df$Measure_ID == measure_id & df$dim1 == dim_, ]
+      
+      # Check if subset_df is not empty
+      if (nrow(subset_df) > 0) {
+        target <- unique(subset_df$Target_Value)[1]
+        improvement <- unique(subset_df$improvement)[1]
 
-      # Apply ptd_spc function
-      spc_result <- subset_df %>% ptd_spc(
-        value_field = value,
-        date_field = Period,
-        improvement_direction = improvement,
-        target = target,
-        rebase = as.Date("2022-04-01")
-      )
-      
-      # Get latest point type
-      latest_point_type <- spc_result %>%
-        filter(x == max(x)) %>%
-        pull(point_type) %>%
-        .[1]
-      
-      # Calculate assurance_type
-      if (is.na(target)) {
-        assurance_type <- NULL
-      } else {
-        assurance <- spc_result %>% summary()
-        assurance_type <- assurance %>%
-          filter(!is.na(assurance_type)) %>%
-          pull(assurance_type) %>%
+        # Apply ptd_spc function
+        spc_result <- subset_df %>% ptd_spc(
+          value_field = value,
+          date_field = Period,
+          improvement_direction = improvement,
+          target = target,
+          rebase = as.Date("2022-04-01")
+        )
+        
+        # Get latest point type
+        latest_point_type <- spc_result %>%
+          filter(x == max(x)) %>%
+          pull(point_type) %>%
           .[1]
+        
+        # Calculate assurance_type
+        if (is.na(target)) {
+          assurance_type <- NULL
+        } else {
+          assurance <- spc_result %>% summary()
+          assurance_type <- assurance %>%
+            filter(!is.na(assurance_type)) %>%
+            pull(assurance_type) %>%
+            .[1]
+        }
+        
+        # Assign assurance_type and variation_type to spc_result
+        spc_result <- spc_result %>%
+          as.data.frame() %>%
+          mutate(Dashboard = dashboard, Measure_ID = measure_id, assurance_type = assurance_type, dim1 = dim_) %>%
+          mutate(variation_type = variation_icon_file(latest_point_type, improvement))
+        
+        # Store the result in the list
+        spc_list[[length(spc_list) + 1]] <- spc_result
       }
-      
-      # Assign assurance_type and variation_type to spc_result
-      spc_result <- spc_result %>%
-        as.data.frame() %>%
-        mutate(Measure_ID = measure_id, assurance_type = assurance_type, dim1 = dim_) %>%
-        mutate(variation_type = variation_icon_file(latest_point_type, improvement))
-      
-      # Store the result in the list
-      spc_list[[length(spc_list) + 1]] <- spc_result
     }
   }
 }
